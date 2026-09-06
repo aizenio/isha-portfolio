@@ -1,36 +1,192 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Isha — portfolio
 
-## Getting Started
+The work first, then the story.
 
-First, run the development server:
+The landing is **the deck**: every project as a card on one conveyor, scrubbed
+by scroll. Once the reader reaches the last card the page keeps going into the
+chapters — how I think, how I work, the craft, who I am, and how to get in
+touch. Built with Next.js 16 (App Router), React 19, TypeScript, Tailwind v4,
+Motion and three.js.
 
 ```bash
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## Structure
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+| Path | What lives there |
+| --- | --- |
+| `lib/content.ts` | **Every word on the site.** Copy, projects, case studies, archive, process, about. Edit the narrative here, not in components. |
+| `lib/motion.ts` | The motion vocabulary — three easings, four durations, the shared viewport trigger. |
+| `app/globals.css` | Design tokens, type scale, and the CSS-driven interactions (process drawers, hover-gated metadata, reduced motion). |
+| `lib/deck.ts` | The deck: featured projects (which carry case studies) followed by archive work (which says so rather than offering a dead click). |
+| `components/sections/` | One file per chapter of the home page. `app/page.tsx` lists them in order. |
+| `components/case/` | The case-study renderer. A case study is a sequence of *movements* (`chapter`, `statement`, `visual`, `pair`, `sequence`, `metrics`) declared in `lib/content.ts`. |
+| `components/visuals/` | Every image on the site, drawn as inline SVG. |
+| `components/primitives/` | Reveal, RevealText, ScrollHighlight, Parallax, Marker, MagneticLink. |
+| `components/chrome/` | Nav, custom cursor, route transition, opening sequence, smooth scroll, global motion policy. |
+| `components/three/` | The WebGL layer. Each scene is split into a **gate** (no three.js import, decides whether to load) and a **scene** (dynamically imported). |
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## Design system
 
-## Learn More
+Two art-directed surfaces — `paper` (cool porcelain) and `ink` (a deep, faintly
+green-black graphite). A section opts in with `data-surface`; every token
+cascades, so a component written once reads correctly on either ground.
 
-To learn more about Next.js, take a look at the following resources:
+The palette is almost achromatic on purpose. The single accent is a desaturated
+eucalyptus (`#3f5c55` on porcelain, `#8fb0a6` on graphite) that reads as
+considered rather than branded, and never competes with the typography. Both
+accents clear AA against their own ground.
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+Type is Instrument Serif for display, Geist for body, Geist Mono for metadata.
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+The page ground is **one fixed element** (`SurfaceBackdrop`), not a background
+on each section — that is what lets the sculpture sit behind every chapter. It
+does not paint a single colour: it paints a **band per section**, positioned
+exactly where that section currently sits on screen. A single colour was tried
+first and is wrong, because whenever two chapters share the viewport one of them
+ends up on the wrong ground with its type unreadable.
 
-## Deploy on Vercel
+## Imagery
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+There are no photographs or bitmap assets. Every visual is a generated inline
+SVG in `components/visuals/`, drawn from the same palette variables as the page.
+They scale to any viewport without art-direction crops, cost nothing to load,
+and re-theme automatically between surfaces. Randomness is seeded
+(`scene-utils.ts`) so server and client render identical markup.
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+## The WebGL layer
+
+Two moments are rendered on the GPU.
+
+**The deck** (`DeckScene`) is the landing. Cards arrive from the lower left
+close to the lens, pass flat through the centre where they can be read, and
+recede to the upper right. Scroll drives a single `progress` value — card `i`
+sits at offset `i - progress` — so the whole arrangement is one pure function of
+one number, which is what keeps it smooth under a flung scroll. The card artwork
+is drawn on the **ink** surface even though the page around it is porcelain:
+near-white plates on a near-white ground had no presence at all.
+
+Cards use a plain textured material rather than a custom shader. A
+ShaderMaterial was tried first and its uniforms read back correctly in
+JavaScript but never reached the GPU through react-three-fiber's prop handling,
+so every card rendered fully transparent. `material.opacity` is a first-class
+three property and uploads reliably; per-card aspect is handled by sizing the
+plane to its texture instead of by UV maths.
+
+Card size is fitted to a share of the viewport *width*, and the conveyor
+tightens on portrait — a single world-space scale shrank the card to a stamp on
+a phone, where the viewport is barely one world unit wide.
+
+There is no second WebGL scene. An earlier build had a narrative sculpture
+behind the story chapters; it was removed so the deck is the only thing on the
+page rendered on the GPU, and everything after it rests on typography, reveals
+and one interaction.
+
+
+**The project plates** (`PlateScene`) take the SVG scene the DOM has already
+drawn, serialise it to a texture with the page's live tokens substituted in,
+and hand it to a shader that bends the plate with scroll velocity, adds a
+whisper of chromatic separation at speed, and ripples under the cursor.
+
+### How it stays cheap
+
+- three.js is **not in the initial bundle**. Every scene sits behind a gate
+  component that imports nothing from three; the gate decides (WebGL available,
+  motion allowed) and only then does `next/dynamic` fetch the renderer as its
+  own chunk. Readers who would never see it never download it.
+- A plate only holds a WebGL context while it is within 60% of the viewport;
+  the hero stops rendering entirely once it scrolls away (`frameloop="never"`).
+- The DOM SVG underneath every plate is the fallback. If WebGL is missing or
+  the texture fails to decode, it simply stays visible and nothing else happens.
+  For the deck that fallback is a plain vertical list of plates with captions —
+  nothing about the work is only reachable through the animation.
+
+`components/three/*Scene.tsx` files disable `react-hooks/immutability` at file
+scope, with the reasoning inline: a react-three-fiber frame loop mutates its
+uniform objects in place sixty times a second, which is the entire point, and
+there is no way to express that which satisfies the rule.
+
+## Pages
+
+| Route | What it is |
+| --- | --- |
+| `/` | The deck, then the story: statement, philosophy, process, craft, contact. |
+| `/about` | Who she is — the statement, how she got here, the plate you can open, toolkit, an index of other work. |
+| `/work/[slug]` | The three case studies. |
+
+## Opening and transitions
+
+The first visit of a session plays a loader that tracks **real** progress: it
+waits on `document.fonts.ready` and on the deck's card textures, reported
+through `lib/loading.ts`. A preloader on a fixed timer is either lying about
+progress or wasting the reader's time. There is a floor so it can't flash, a
+bail so a stalled texture can't hold the page, and a hard stop because a
+backgrounded tab pauses `requestAnimationFrame` outright and would otherwise
+leave the page locked behind the panel. It ends by splitting in two and
+clearing from the middle out.
+
+Navigation is a wipe (`Transition.tsx`). The App Router renders the next
+segment immediately, so an exit animation after the click cannot be
+synchronised — instead the provider owns the navigation: a panel travels up to
+cover the page carrying the name of where you are going, the route changes
+underneath it, and the same panel keeps travelling in the same direction to
+reveal the new page. One continuous movement rather than two opposed ones.
+Ordinary `<Link>`s still cut; `<TransitionLink>` plays the move.
+
+## The About page
+
+Its centrepiece is the portrait plate. At rest it is a halftone self-portrait
+drawn from project data rather than a photograph. Press it and the field
+scatters and the things that end up in the work without being invited come out
+— what she is reading, listening to, learning, still bad at. It is a toggle
+rather than a one-shot, so nothing is lost by pressing it, and the content is
+real list markup underneath.
+
+## Motion
+
+Scrolling is smoothed with Lenis, which drives the *real* scroll position — so
+`position: sticky` (the craft sequence), `position: fixed` (nav, cursor, grain)
+and the native scrollbar all keep working. It never initialises for touch or
+for reduced motion.
+
+The first visit of a session plays a short opening sequence before the hero
+begins; the hero's own reveal is gated on it through context so the two never
+overlap.
+
+`MotionConfig reducedMotion="user"` in the root layout makes every Motion
+component honour the OS preference; a global CSS rule covers transitions and
+keyframes. Components additionally branch on `useReducedMotion` where the
+*structure* changes — the craft sequence falls back to a static index, the
+custom cursor doesn't mount at all.
+
+Hover-dependent behaviour (custom cursor, the archive's cursor-following
+preview, hover-gated project metadata) is gated on
+`(hover: hover) and (pointer: fine)`, never on viewport width.
+
+## Before this goes live
+
+These are deliberate placeholders:
+
+- **Biography and location** — `designer` and `about` in `lib/content.ts`.
+- **Contact links** — `designer.links`; the LinkedIn, Dribbble and Read.cv URLs
+  are invented, as is the email address.
+
+There is no employment history on the site by design — the work speaks through
+the project showcase, and `designer.availability` states what Isha is open to
+without labelling it.
+- **Projects** — Zane Atlas, Verse and Northbound, plus the six archive entries,
+  are written as realistic examples. Replace the copy; the movement types will
+  carry any real case study.
+- **Portrait** — `components/visuals/Portrait.tsx` draws a halftone plate. To
+  use a photograph, drop it at `public/portrait.jpg` and swap the `<svg>` for a
+  `next/image` fill inside the same wrapper; frame, ratio and motion still apply.
+
+## Generated coordinates and hydration
+
+`Math.sin`, `Math.cos` and `Math.pow` may differ in their last bit between
+JavaScript engines, and Node and Chrome do. React compares the *serialised*
+attribute, so an unrounded trig result in a generated scene is a guaranteed
+hydration mismatch. Every computed SVG coordinate goes through `q()` in
+`components/visuals/scene-utils.ts`, which quantises to three decimals — far
+below a pixel at these viewBoxes.
