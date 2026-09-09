@@ -1,8 +1,7 @@
 import type { Project } from "@/lib/content";
 import { RevealText } from "@/components/primitives/RevealText";
 import { Reveal, RevealItem } from "@/components/primitives/Reveal";
-import { Parallax } from "@/components/primitives/Parallax";
-import { SceneCanvas } from "@/components/three/SceneCanvas";
+import { Plate, plateBox } from "@/components/case/Plate";
 import { TransitionLink } from "@/components/chrome/Transition";
 
 /** The case study's own opening scene — title, premise, credits, then the plate. */
@@ -46,6 +45,21 @@ export function CaseOpening({ project }: { project: Project }) {
           <Reveal delay={0.5}>
             <p className="t-lede mt-8 max-w-[46ch]">{project.premise}</p>
           </Reveal>
+          {project.link && (
+            <Reveal delay={0.6}>
+              <a
+                href={project.link.href}
+                target="_blank"
+                rel="noreferrer"
+                className="link-underline t-label mt-8 inline-flex items-center gap-2 text-ink"
+              >
+                {project.link.label}
+                <span aria-hidden className="text-accent">
+                  ↗
+                </span>
+              </a>
+            </Reveal>
+          )}
         </div>
 
         <Reveal
@@ -69,10 +83,10 @@ export function CaseOpening({ project }: { project: Project }) {
       </section>
 
       <figure data-surface="ink" className="bg-paper pb-16 text-ink">
-        <div className="h-[62svh] w-full overflow-hidden border-y border-rule md:h-[94svh]">
-          <Parallax distance={80} from={1.08} className="h-full w-full">
-            <SceneCanvas visual={project.visual} />
-          </Parallax>
+        <div
+          className={`${plateBox(project.visual)} w-full overflow-hidden border-y border-rule`}
+        >
+          <Plate visual={project.visual} />
         </div>
         <div className="shell">
           <figcaption className="t-label mt-5 max-w-[52ch] leading-[1.8]">

@@ -4,7 +4,7 @@ import { Canvas, useFrame, useThree } from "@react-three/fiber";
 import { useEffect, useRef, useState } from "react";
 import * as THREE from "three";
 import { deck } from "@/lib/deck";
-import { readPalette, svgToTexture } from "@/lib/webgl";
+import { imageToTexture, readPalette, svgToTexture } from "@/lib/webgl";
 
 /**
  * The deck.
@@ -313,18 +313,35 @@ export default function DeckScene({
   useEffect(() => {
     const host = source.current;
     if (!host) return;
-    const svgs = Array.from(host.querySelectorAll("svg"));
-    if (svgs.length !== deck.length) return;
+    /* One card, one texture — whichever kind of plate the card holds. A drawn
+       plate is serialised from its <svg>; a captured one is read off the <img>
+       the page has already loaded. Nested <svg> chrome inside a mockup is
+       skipped, or the deck would sit waiting for textures that do not exist. */
+    const cards = Array.from(host.querySelectorAll<HTMLElement>("[data-plate]"));
+    if (cards.length !== deck.length) return;
 
     let cancelled = false;
     const palette = readPalette(host);
 
     Promise.all(
-      svgs.map(async (svg) => {
-        const box = (svg.getAttribute("viewBox") ?? "0 0 1200 750").split(/\s+/).map(Number);
+      cards.map(async (card) => {
+        const svg = Array.from(card.querySelectorAll("svg")).find(
+          (node) => !node.parentElement?.closest("svg"),
+        );
+        if (svg) {
+          const box = (svg.getAttribute("viewBox") ?? "0 0 1200 750").split(/\s+/).map(Number);
+          return {
+            texture: await svgToTexture(svg, palette, 1400),
+            aspect: box[2] / box[3] || 1.6,
+          };
+        }
+
+        const image = card.querySelector("img");
+        if (!image) throw new Error("card has no plate");
+        const rect = card.getBoundingClientRect();
         return {
-          texture: await svgToTexture(svg, palette, 1400),
-          aspect: box[2] / box[3] || 1.6,
+          texture: await imageToTexture(image),
+          aspect: rect.width / rect.height || 1.6,
         };
       }),
     )

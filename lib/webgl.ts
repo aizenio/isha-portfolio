@@ -95,6 +95,39 @@ export async function svgToTexture(
   }
 }
 
+/**
+ * Serialise a rendered <img> into a texture.
+ *
+ * Some plates are photographs — the live site in a browser, the app in a
+ * simulator — so the deck has to be able to build a card from a bitmap as well
+ * as from a drawing. Going through a canvas keeps both paths identical from
+ * three's point of view.
+ */
+export async function imageToTexture(image: HTMLImageElement): Promise<THREE.Texture> {
+  if (!image.complete) {
+    await new Promise<void>((resolve, reject) => {
+      image.addEventListener("load", () => resolve(), { once: true });
+      image.addEventListener("error", () => reject(new Error("plate image failed")), { once: true });
+    });
+  }
+
+  const width = image.naturalWidth || image.width;
+  const height = image.naturalHeight || image.height;
+  const canvas = document.createElement("canvas");
+  canvas.width = width;
+  canvas.height = height;
+  const ctx = canvas.getContext("2d");
+  if (!ctx) throw new Error("2d context unavailable");
+  ctx.drawImage(image, 0, 0, width, height);
+
+  const texture = new THREE.CanvasTexture(canvas);
+  texture.colorSpace = THREE.SRGBColorSpace;
+  texture.minFilter = THREE.LinearFilter;
+  texture.generateMipmaps = false;
+  texture.needsUpdate = true;
+  return texture;
+}
+
 /** three.js wants linear-space colours; the tokens are authored in sRGB hex. */
 export function toColor(value: string) {
   return new THREE.Color(value || "#000000");

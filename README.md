@@ -21,7 +21,9 @@ npm run dev
 | `app/globals.css` | Design tokens, type scale, and the CSS-driven interactions (process drawers, hover-gated metadata, reduced motion). |
 | `lib/deck.ts` | The deck: featured projects (which carry case studies) followed by archive work (which says so rather than offering a dead click). |
 | `components/sections/` | One file per chapter of the home page. `app/page.tsx` lists them in order. |
-| `components/case/` | The case-study renderer. A case study is a sequence of *movements* (`chapter`, `statement`, `visual`, `pair`, `sequence`, `metrics`) declared in `lib/content.ts`. |
+| `public/shots/` | Real captures. `zane-atlas/` is the live site through headless Chrome; `monsoon/` is the SwiftUI build in the iOS simulator. Re-take both with `scripts/capture-shots.sh`. |
+| `components/visuals/` | The plates. `chrome.tsx` is the drawing kit (type, panels, browser and device frames); `scenes/` holds one file per project. A plate declares `contain` (a mockup, shown whole) or `slice` (a texture, cropped to fill). |
+| `components/case/` | The case-study renderer. A case study is a sequence of *movements* (`chapter`, `statement`, `visual`, `pair`, `sequence`, `research`, `system`, `metrics`) declared in `lib/content.ts`. |
 | `components/visuals/` | Every image on the site, drawn as inline SVG. |
 | `components/primitives/` | Reveal, RevealText, ScrollHighlight, Parallax, Marker, MagneticLink. |
 | `components/chrome/` | Nav, custom cursor, route transition, opening sequence, smooth scroll, global motion policy. |
@@ -175,12 +177,42 @@ These are deliberate placeholders:
 There is no employment history on the site by design — the work speaks through
 the project showcase, and `designer.availability` states what Isha is open to
 without labelling it.
-- **Projects** — Zane Atlas, Verse and Northbound, plus the six archive entries,
-  are written as realistic examples. Replace the copy; the movement types will
-  carry any real case study.
+- **Projects** — Zane Atlas is the real agency at zaneatlas.com, captured live.
+  Agent Swarm is the multi-agent supply chain platform in
+  `experiments/agent_swarm` (same five agents, same four headline metrics, same
+  read-only GOD panel). Monsoon's iOS screens are captures of the SwiftUI UI
+  build in `experiments/monsoon-ios`; its Android screens are drawn from the
+  parity spec, because there is no Android toolchain on this machine. The six
+  archive entries are still placeholders.
 - **Portrait** — `components/visuals/Portrait.tsx` draws a halftone plate. To
   use a photograph, drop it at `public/portrait.jpg` and swap the `<svg>` for a
   `next/image` fill inside the same wrapper; frame, ratio and motion still apply.
+
+## Plates: drawn, and photographed
+
+A plate is one of two things, and the registry in `components/visuals/ProjectVisual.tsx`
+says which:
+
+- **Drawn** (`svg`) — mockups and textures, painted from tokens. These are handed
+  to the GPU layer, which serialises the live `<svg>` into a texture.
+- **Photographed** (`shot`) — a real capture. The Zane Atlas plates are the live
+  site captured with headless Chrome; the Monsoon plates are the SwiftUI UI
+  build captured with `simctl io screenshot`. A shot is never uploaded to the
+  GPU layer on a case-study page; it is mounted in a browser or device frame
+  (`components/visuals/ShotFrame.tsx`) and drifts with a translate-only
+  parallax, because scaling a screenshot to fake depth crops its edges.
+
+The deck's WebGL conveyor builds one texture per card and can read either kind —
+an `<svg>` when the card is drawn, the loaded `<img>` when it is not. A card
+whose plate is a composition rather than a single image (Monsoon's three phones)
+supplies a pre-composed landscape `cover` instead; `scripts/cover.html` is what
+builds it.
+
+**Each project keeps its own palette.** The portfolio is near-achromatic with a
+single eucalyptus accent; Zane Atlas is near-black with a mint, Agent Swarm is
+deep slate with five agent hues doubling as its severity scale, and Monsoon is
+warm paper with a teal. A product shot painted in the portfolio's ink would be a
+lie about what the product looks like.
 
 ## Generated coordinates and hydration
 

@@ -3,7 +3,7 @@
 import dynamic from "next/dynamic";
 import { useCallback, useEffect, useRef, useState } from "react";
 import type { VisualKey } from "@/lib/content";
-import { ProjectVisual } from "@/components/visuals/ProjectVisual";
+import { ProjectVisual, visualFit } from "@/components/visuals/ProjectVisual";
 import { useEnhancedVisuals } from "@/lib/use-enhanced-visuals";
 
 /**
@@ -31,6 +31,7 @@ export function SceneCanvas({
   const hoveredRef = useRef(false);
   const pointerRef = useRef({ x: 0.5, y: 0.5 });
 
+  const contain = visualFit(visual) === "contain";
   const capable = useEnhancedVisuals();
   const [failed, setFailed] = useState(false);
   const [near, setNear] = useState(false);
@@ -82,6 +83,7 @@ export function SceneCanvas({
       {enabled && near && (
         <PlateScene
           source={source}
+          contain={contain}
           hovered={hoveredRef}
           pointer={pointerRef}
           onFail={onFail}

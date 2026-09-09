@@ -208,7 +208,10 @@ export function Deck() {
 
         {deck.map((item) => (
           <figure key={item.id} className={live ? "" : "w-full"}>
-            <div className="aspect-[16/10] w-full overflow-hidden border border-rule bg-paper-raised">
+            <div
+              data-plate
+              className="aspect-[16/10] w-full overflow-hidden border border-rule bg-paper-raised"
+            >
               <ProjectVisual visual={item.visual} />
             </div>
             {!live && (

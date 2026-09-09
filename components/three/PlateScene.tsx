@@ -50,6 +50,8 @@ const VERTEX = /* glsl */ `
 
 const FRAGMENT = /* glsl */ `
   uniform sampler2D uTexture;
+  uniform float uFit;
+  uniform vec3  uPaper;
   uniform float uVelocity;
   uniform float uHover;
   uniform float uTime;
@@ -59,16 +61,23 @@ const FRAGMENT = /* glsl */ `
 
   varying vec2 vUv;
 
-  /* background-size: cover, in UV space. */
-  vec2 cover(vec2 uv) {
-    vec2 scale = uPlaneAspect > uImageAspect
+  /*
+   * background-size, in UV space. uFit picks between cover — the texture
+   * scenes, which are meant to be cropped — and contain, which is what a
+   * mockup needs: a screenshot the reader can only read all of.
+   */
+  vec2 fitted(vec2 uv) {
+    vec2 cover = uPlaneAspect > uImageAspect
       ? vec2(1.0, uImageAspect / uPlaneAspect)
       : vec2(uPlaneAspect / uImageAspect, 1.0);
-    return (uv - 0.5) * scale + 0.5;
+    vec2 contain = uPlaneAspect > uImageAspect
+      ? vec2(uPlaneAspect / uImageAspect, 1.0)
+      : vec2(1.0, uImageAspect / uPlaneAspect);
+    return (uv - 0.5) * mix(cover, contain, uFit) + 0.5;
   }
 
   void main() {
-    vec2 uv = cover(vUv);
+    vec2 uv = fitted(vUv);
 
     // Hover eases the frame in a little and sends one slow ring out from the
     // cursor. Both are small enough to feel like material, not like an effect.
@@ -85,18 +94,26 @@ const FRAGMENT = /* glsl */ `
     float g = texture2D(uTexture, uv).g;
     float b = texture2D(uTexture, uv - vec2(shift, 0.0)).b;
 
-    gl_FragColor = vec4(r, g, b, 1.0);
+    // Contained plates leave a margin; it is painted, not sampled.
+    vec2 edge = step(vec2(0.0), uv) * step(uv, vec2(1.0));
+    float inside = edge.x * edge.y;
+
+    gl_FragColor = vec4(mix(uPaper, vec3(r, g, b), inside), 1.0);
   }
 `;
 
 function Plate({
   texture,
   imageAspect,
+  contain,
+  paper,
   hovered,
   pointer,
 }: {
   texture: THREE.Texture;
   imageAspect: number;
+  contain: boolean;
+  paper: string;
   hovered: React.RefObject<boolean>;
   pointer: React.RefObject<{ x: number; y: number }>;
 }) {
@@ -114,8 +131,10 @@ function Plate({
       uPointer: { value: new THREE.Vector2(0.5, 0.5) },
       uPlaneAspect: { value: 1 },
       uImageAspect: { value: imageAspect },
+      uFit: { value: contain ? 1 : 0 },
+      uPaper: { value: new THREE.Color(paper || "#e7e8e5") },
     }),
-    [texture, imageAspect],
+    [texture, imageAspect, contain, paper],
   );
 
   useEffect(() => {
@@ -155,12 +174,15 @@ function Plate({
  */
 export default function PlateScene({
   source,
+  contain = false,
   hovered,
   pointer,
   onFail,
   onReady,
 }: {
   source: React.RefObject<HTMLDivElement | null>;
+  /** Show the whole plate rather than filling the frame with it. */
+  contain?: boolean;
   hovered: React.RefObject<boolean>;
   pointer: React.RefObject<{ x: number; y: number }>;
   onFail: () => void;
@@ -168,6 +190,7 @@ export default function PlateScene({
 }) {
   const [texture, setTexture] = useState<THREE.Texture | null>(null);
   const [imageAspect, setImageAspect] = useState(1.6);
+  const [paper, setPaper] = useState("");
 
   useEffect(() => {
     const host = source.current;
@@ -177,12 +200,15 @@ export default function PlateScene({
     let cancelled = false;
     const box = (svg.getAttribute("viewBox") ?? "0 0 1200 750").split(/\s+/).map(Number);
 
-    svgToTexture(svg, readPalette(host))
+    const palette = readPalette(host);
+
+    svgToTexture(svg, palette)
       .then((next) => {
         if (cancelled) {
           next.dispose();
           return;
         }
+        setPaper(palette["--paper"]);
         setImageAspect(box[2] / box[3] || 1.6);
         setTexture(next);
         onReady();
@@ -209,6 +235,8 @@ export default function PlateScene({
       <Plate
         texture={texture}
         imageAspect={imageAspect}
+        contain={contain}
+        paper={paper}
         hovered={hovered}
         pointer={pointer}
       />

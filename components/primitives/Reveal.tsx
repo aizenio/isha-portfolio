@@ -8,7 +8,18 @@ import { arrive, inView, listStagger } from "@/lib/motion";
  * Tags we animate. Kept as a union so `motion[tag]` stays typed and we use the
  * library's cached component proxy rather than creating one per render.
  */
-type Tag = "div" | "section" | "p" | "span" | "li" | "ul" | "ol" | "h2" | "h3" | "figure";
+type Tag =
+  | "div"
+  | "section"
+  | "p"
+  | "span"
+  | "li"
+  | "ul"
+  | "ol"
+  | "dl"
+  | "h2"
+  | "h3"
+  | "figure";
 
 type RevealProps = {
   children: ReactNode;

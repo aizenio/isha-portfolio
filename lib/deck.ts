@@ -29,7 +29,7 @@ export const deck: DeckCard[] = projects.map((project) => ({
   year: project.year,
   blurb: project.tagline,
   meta: project.role,
-  visual: project.visual,
+  visual: project.cover ?? project.visual,
   href: `/work/${project.slug}`,
 }));
 
