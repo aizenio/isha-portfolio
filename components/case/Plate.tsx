@@ -1,7 +1,12 @@
 import type { VisualKey } from "@/lib/content";
 import { Parallax } from "@/components/primitives/Parallax";
 import { SceneCanvas } from "@/components/three/SceneCanvas";
-import { ProjectVisual, visualFit, visualKind } from "@/components/visuals/ProjectVisual";
+import {
+  ProjectVisual,
+  visualFit,
+  visualFrame,
+  visualKind,
+} from "@/components/visuals/ProjectVisual";
 
 /**
  * A plate in its frame.
@@ -10,8 +15,16 @@ import { ProjectVisual, visualFit, visualKind } from "@/components/visuals/Proje
  * scaled or cropped to do it, so a shot is laid on an over-tall ground and
  * translated inside it. The frame clips the overhang; the mockup keeps every
  * one of its pixels.
+ *
+ * A plate that arrives already composed on its own ground — a design board,
+ * the deck's cover — is the exception: it fills the frame exactly, and any
+ * overscan would eat the edges it was cropped to. Those sit still.
  */
 export function Plate({ visual }: { visual: VisualKey }) {
+  if (visualFrame(visual) === "plain") {
+    return <ProjectVisual visual={visual} />;
+  }
+
   if (visualKind(visual) === "shot") {
     return (
       <div className="h-full w-full overflow-hidden">

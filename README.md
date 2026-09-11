@@ -21,7 +21,7 @@ npm run dev
 | `app/globals.css` | Design tokens, type scale, and the CSS-driven interactions (process drawers, hover-gated metadata, reduced motion). |
 | `lib/deck.ts` | The deck: featured projects (which carry case studies) followed by archive work (which says so rather than offering a dead click). |
 | `components/sections/` | One file per chapter of the home page. `app/page.tsx` lists them in order. |
-| `public/shots/` | Real captures. `zane-atlas/` is the live site through headless Chrome; `monsoon/` is the SwiftUI build in the iOS simulator. Re-take both with `scripts/capture-shots.sh`. |
+| `public/shots/` | Real captures. `zane-atlas/` is the live site through headless Chrome; `monsoon/` is the SwiftUI build in the iOS simulator, and `monsoon/deck/` is the screen-inventory canvas. Re-take the first two with `scripts/capture-shots.sh`. |
 | `components/visuals/` | The plates. `chrome.tsx` is the drawing kit (type, panels, browser and device frames); `scenes/` holds one file per project. A plate declares `contain` (a mockup, shown whole) or `slice` (a texture, cropped to fill). |
 | `components/case/` | The case-study renderer. A case study is a sequence of *movements* (`chapter`, `statement`, `visual`, `pair`, `sequence`, `research`, `system`, `metrics`) declared in `lib/content.ts`. |
 | `components/visuals/` | Every image on the site, drawn as inline SVG. |

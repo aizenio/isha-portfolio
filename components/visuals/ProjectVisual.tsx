@@ -209,6 +209,18 @@ const SCENES: Record<VisualKey, Scene> = {
       caption: "Plan, at night",
     },
   ]),
+  "app-deck-firstrun": plainShot(
+    "/shots/monsoon/deck/firstrun.png",
+    "First run, three screens: welcome, what's in hand, what goes out.",
+  ),
+  "app-deck-loop": plainShot(
+    "/shots/monsoon/deck/loop.png",
+    "The daily loop: runway healthy, runway tight at nine days, and logging a payment.",
+  ),
+  "app-deck-plan": plainShot(
+    "/shots/monsoon/deck/plan.png",
+    "Plan: the month, moving a bill with a live delta, and the year read as seasons.",
+  ),
   "app-cover": plainShot(
     "/shots/monsoon/cover.png",
     "Three Monsoon screens on iPhone: the runway, logging a payment, and the month after it lands.",
@@ -228,6 +240,12 @@ const SCENES: Record<VisualKey, Scene> = {
 
 /** Whether a plate is drawn artwork or a captured screenshot. */
 export const visualKind = (visual: VisualKey) => SCENES[visual].kind;
+
+/** For a captured plate, how it is mounted. */
+export const visualFrame = (visual: VisualKey) => {
+  const scene = SCENES[visual];
+  return scene.kind === "shot" ? scene.frame : null;
+};
 
 /** How a plate should be fitted to its container. */
 export const visualFit = (visual: VisualKey): Fit => {

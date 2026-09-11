@@ -23,6 +23,9 @@ export type VisualKey =
   | "swarm-system"
   | "app-ios"
   | "app-night"
+  | "app-deck-firstrun"
+  | "app-deck-loop"
+  | "app-deck-plan"
   | "app-cover"
   | "app-android"
   | "app-parity"
@@ -794,6 +797,10 @@ export const projects: Project[] = [
     outcome: "Day-30 retention 19% → 47%. Rated 4.8 across both stores.",
     visual: "app-ios",
     cover: "app-cover",
+    link: {
+      label: "The full screen inventory",
+      href: "https://claude.ai/code/artifact/c1c01c1c-37b3-4d9b-9180-c574e5ed7cf1",
+    },
     premise:
       "Every budgeting app assumes a salary lands on the first. For a designer, a driver or a farmer, that assumption is the whole problem.",
     movements: [
@@ -914,6 +921,36 @@ export const projects: Project[] = [
         visual: "app-parity",
         caption:
           "The parity sheet handed to both engineering teams. Every divergence is listed, with the reason it exists.",
+        scale: "wide",
+      },
+      {
+        kind: "chapter",
+        label: "The Inventory",
+        heading: "Every screen, first launch to settings.",
+        body: [
+          "A runway number is easy to design once. The work is the other fifteen screens that have to agree with it — onboarding that never says the word budget, the tight state, the month, the year read as seasons, and the settings page that decides when the app is allowed to speak.",
+          "All of it is drawn on the same nine colour tokens, eight type styles and six components as the build, so a screen that exists only on the canvas still costs nothing to ship.",
+        ],
+      },
+      {
+        kind: "visual",
+        visual: "app-deck-firstrun",
+        caption:
+          "A · First run. Three steps, no account, no bank link — and the first screen says money doesn't arrive on the first, because that is the whole premise.",
+        scale: "wide",
+      },
+      {
+        kind: "visual",
+        visual: "app-deck-loop",
+        caption:
+          "B · The daily loop. Healthy at 38 days, tight at nine, and the payment being logged. Median session in testing: eleven seconds.",
+        scale: "wide",
+      },
+      {
+        kind: "visual",
+        visual: "app-deck-plan",
+        caption:
+          "D · Plan. The month, a bill moved with the delta recalculating live, and the year shown as seasons rather than as twelve equal boxes.",
         scale: "wide",
       },
       {
