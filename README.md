@@ -21,7 +21,8 @@ npm run dev
 | `app/globals.css` | Design tokens, type scale, and the CSS-driven interactions (process drawers, hover-gated metadata, reduced motion). |
 | `lib/deck.ts` | The deck: featured projects (which carry case studies) followed by archive work (which says so rather than offering a dead click). |
 | `components/sections/` | One file per chapter of the home page. `app/page.tsx` lists them in order. |
-| `public/shots/` | Real captures. `zane-atlas/` is the live site through headless Chrome; `monsoon/` is the SwiftUI build in the iOS simulator, and `monsoon/deck/` is the screen-inventory canvas. Re-take the first two with `scripts/capture-shots.sh`. |
+| `public/shots/` | Real captures of the live Zane Atlas site, taken with headless Chrome — re-take them with `scripts/capture-shots.sh site`. |
+| `components/visuals/monsoon/` | The Monsoon screens, built as markup rather than captured. `kit.tsx` is the device and the app's palette, `screens.tsx` the eight screens, `boards.tsx` the rows that become plates. |
 | `components/visuals/` | The plates. `chrome.tsx` is the drawing kit (type, panels, browser and device frames); `scenes/` holds one file per project. A plate declares `contain` (a mockup, shown whole) or `slice` (a texture, cropped to fill). |
 | `components/case/` | The case-study renderer. A case study is a sequence of *movements* (`chapter`, `statement`, `visual`, `pair`, `sequence`, `research`, `system`, `metrics`) declared in `lib/content.ts`. |
 | `components/visuals/` | Every image on the site, drawn as inline SVG. |
@@ -194,12 +195,17 @@ says which:
 
 - **Drawn** (`svg`) — mockups and textures, painted from tokens. These are handed
   to the GPU layer, which serialises the live `<svg>` into a texture.
-- **Photographed** (`shot`) — a real capture. The Zane Atlas plates are the live
-  site captured with headless Chrome; the Monsoon plates are the SwiftUI UI
-  build captured with `simctl io screenshot`. A shot is never uploaded to the
-  GPU layer on a case-study page; it is mounted in a browser or device frame
+- **Photographed** (`shot`) — a real capture. The Zane Atlas plates are the
+  live site captured with headless Chrome. A shot is never uploaded to the GPU
+  layer on a case-study page; it is mounted in a browser or device frame
   (`components/visuals/ShotFrame.tsx`) and drifts with a translate-only
-  parallax, because scaling a screenshot to fake depth crops its edges.
+  parallax, because scaling a screenshot to fake depth crops its edges. The
+  captures are served `unoptimized`: they are already WebP at 2160px and under
+  130KB, and the image optimizer only ever returned a smaller, softer variant.
+- **Built** (`live`) — markup. The Monsoon screens are components, not
+  pictures, so they stay sharp at any plate size and weigh nothing. Sizing uses
+  container-query units against a fixed design width (`u(24)` means "24px at
+  design size"), which scales a whole board as one drawing.
 
 The deck's WebGL conveyor builds one texture per card and can read either kind —
 an `<svg>` when the card is drawn, the loaded `<img>` when it is not. A card

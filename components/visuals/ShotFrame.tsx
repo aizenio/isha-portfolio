@@ -44,9 +44,11 @@ export function BrowserShot({ src, alt, width, height, url, priority }: Common &
           width={width}
           height={height}
           priority={priority}
-          quality={82}
+          // Already WebP at 2160px and under 130KB: the optimizer only ever
+          // handed back a smaller, softer variant of a file that was fine.
+          unoptimized
           className="block h-auto w-full"
-          sizes="(min-width: 1280px) 1180px, 96vw"
+          sizes="(min-width: 1280px) 2360px, 190vw"
         />
       </div>
     </div>
@@ -73,7 +75,7 @@ export function PhoneShot({
                 width={shot.width}
                 height={shot.height}
                 priority={priority && index === 0}
-                quality={82}
+                unoptimized
                 className="block h-full w-full object-contain"
                 sizes="(min-width: 768px) 300px, 30vw"
               />
@@ -95,9 +97,9 @@ export function PlainShot({ src, alt, width, height, priority }: Common) {
       width={width}
       height={height}
       priority={priority}
-      quality={82}
+      unoptimized
       className="h-full w-full object-cover"
-      sizes="(min-width: 1280px) 1180px, 96vw"
+      sizes="(min-width: 1280px) 2360px, 190vw"
     />
   );
 }

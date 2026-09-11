@@ -21,7 +21,8 @@ import {
  * overscan would eat the edges it was cropped to. Those sit still.
  */
 export function Plate({ visual, priority }: { visual: VisualKey; priority?: boolean }) {
-  if (visualFrame(visual) === "plain") {
+  // Markup and pre-composed boards fill their frame exactly: no overscan.
+  if (visualKind(visual) === "live" || visualFrame(visual) === "plain") {
     return <ProjectVisual visual={visual} priority={priority} />;
   }
 
@@ -54,7 +55,7 @@ export function Plate({ visual, priority }: { visual: VisualKey; priority?: bool
 
 /** The frame a plate wants: a fixed ratio for mockups, viewport height for textures. */
 export function plateBox(visual: VisualKey, scale?: "wide" | "bleed" | "inset") {
-  if (visualKind(visual) === "shot") return "aspect-[16/10] w-full";
+  if (visualKind(visual) !== "svg") return "aspect-[16/10] w-full";
   if (visualFit(visual) === "contain") return "aspect-[16/10] w-full";
   if (scale === "bleed") return "h-[64svh] md:h-[92svh]";
   if (scale === "inset") return "h-[42svh] md:h-[60svh]";

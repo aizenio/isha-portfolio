@@ -5,6 +5,13 @@ import { q, seeded } from "./scene-utils";
 import { AtlasAudit, AtlasSystem } from "./scenes/atlas";
 import { SwarmConsole, SwarmGraph, SwarmInsights, SwarmResearch, SwarmSystem } from "./scenes/swarm";
 import { MonsoonResearch, MonsoonSystem } from "./scenes/monsoon";
+import {
+  BoardFirstRun,
+  BoardIOS,
+  BoardLoop,
+  BoardNight,
+  BoardPlan,
+} from "./monsoon/boards";
 
 /**
  * Every image on this site is drawn, not photographed.
@@ -107,6 +114,8 @@ function ArchiveScene({ seed, variant }: { seed: number; variant: number }) {
  */
 type Scene =
   | { kind: "svg"; render: () => React.JSX.Element; fit: Fit }
+  /** Built in the page: real markup, sharp at any size, no bitmap at all. */
+  | { kind: "live"; render: () => React.JSX.Element }
   | {
       kind: "shot";
       frame: "browser" | "phone" | "plain";
@@ -117,6 +126,8 @@ type Scene =
 
 const mock = (render: () => React.JSX.Element): Scene => ({ kind: "svg", render, fit: "contain" });
 const mark = (render: () => React.JSX.Element): Scene => ({ kind: "svg", render, fit: "slice" });
+const live = (render: () => React.JSX.Element): Scene => ({ kind: "live", render });
+
 const browserShot = (src: string, alt: string, url: string, width = 2160, height = 1350): Scene => ({
   kind: "shot",
   frame: "browser",
@@ -130,15 +141,6 @@ const plainShot = (src: string, alt: string, width = 2160, height = 1350): Scene
   shots: [{ src, width, height, alt }],
 });
 
-const phoneShot = (
-  shots: { src: string; alt: string; caption?: string }[],
-  width = 644,
-  height = 1400,
-): Scene => ({
-  kind: "shot",
-  frame: "phone",
-  shots: shots.map((entry) => ({ ...entry, width, height })),
-});
 
 const SCENES: Record<VisualKey, Scene> = {
   "atlas-shot-hero": browserShot(
@@ -175,52 +177,11 @@ const SCENES: Record<VisualKey, Scene> = {
   "swarm-research": mock(SwarmResearch),
   "swarm-system": mock(SwarmSystem),
 
-  "app-ios": phoneShot([
-    {
-      src: "/shots/monsoon/runway-light.webp",
-      alt: "Monsoon home screen on iPhone: you are safe for 38 days, until 11 April.",
-      caption: "Runway",
-    },
-    {
-      src: "/shots/monsoon/log-light.webp",
-      alt: "Logging a payment: amount, payer, date, and a keypad inside the thumb arc.",
-      caption: "Log a payment",
-    },
-    {
-      src: "/shots/monsoon/plan-light.webp",
-      alt: "The plan screen after the payment lands: 59 days, up 21.",
-      caption: "After it lands",
-    },
-  ]),
-  "app-night": phoneShot([
-    {
-      src: "/shots/monsoon/runway-dark.webp",
-      alt: "The home screen in the night theme.",
-      caption: "Night",
-    },
-    {
-      src: "/shots/monsoon/tight-light.webp",
-      alt: "The same screen with nine days of runway left: the number turns amber, nothing else changes.",
-      caption: "Nine days left",
-    },
-    {
-      src: "/shots/monsoon/plan-dark.webp",
-      alt: "The plan screen in the night theme.",
-      caption: "Plan, at night",
-    },
-  ]),
-  "app-deck-firstrun": plainShot(
-    "/shots/monsoon/deck/firstrun.webp",
-    "First run, three screens: welcome, what's in hand, what goes out.",
-  ),
-  "app-deck-loop": plainShot(
-    "/shots/monsoon/deck/loop.webp",
-    "The daily loop: runway healthy, runway tight at nine days, and logging a payment.",
-  ),
-  "app-deck-plan": plainShot(
-    "/shots/monsoon/deck/plan.webp",
-    "Plan: the month, moving a bill with a live delta, and the year read as seasons.",
-  ),
+  "app-ios": live(BoardIOS),
+  "app-night": live(BoardNight),
+  "app-deck-firstrun": live(BoardFirstRun),
+  "app-deck-loop": live(BoardLoop),
+  "app-deck-plan": live(BoardPlan),
   "app-cover": plainShot(
     "/shots/monsoon/cover.webp",
     "Three Monsoon screens on iPhone: the runway, logging a payment, and the month after it lands.",
@@ -248,7 +209,7 @@ export const visualFrame = (visual: VisualKey) => {
 /** How a plate should be fitted to its container. */
 export const visualFit = (visual: VisualKey): Fit => {
   const scene = SCENES[visual];
-  return scene.kind === "shot" ? "contain" : scene.fit;
+  return scene.kind === "svg" ? scene.fit : "contain";
 };
 
 export function ProjectVisual({
@@ -262,6 +223,15 @@ export function ProjectVisual({
   priority?: boolean;
 }) {
   const scene = SCENES[visual];
+
+  if (scene.kind === "live") {
+    const Scene = scene.render;
+    return (
+      <div className={`h-full w-full overflow-hidden ${className ?? ""}`}>
+        <Scene />
+      </div>
+    );
+  }
 
   if (scene.kind === "shot") {
     return (
