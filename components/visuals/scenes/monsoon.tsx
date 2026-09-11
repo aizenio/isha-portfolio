@@ -4,8 +4,7 @@ import { q, seeded } from "../scene-utils";
 /**
  * Monsoon — the drawn plates.
  *
- * Both builds are shown as captures now: iOS from the simulator, Android and
- * the parity sheet composed from the same design tokens. What stays drawn is
+ * The screens themselves are captures from the simulator. What stays drawn is
  * the work around them — the diary study, and the system sheet whose subject
  * is the rules themselves rather than any one screen.
  */
@@ -210,35 +209,26 @@ export function MonsoonSystem() {
         38 days
       </T>
 
-      {/* platform mapping */}
+      {/* feedback */}
       <Divider x1={428} y={566} x2={1128} />
       <Label x={428} y={592}>
-        One component, two platforms
+        Feedback · three patterns
       </Label>
       {[
-        { k: "Primary action", ios: "Filled button", android: "FAB" },
-        { k: "Undo", ios: "Inline revert", android: "Snackbar" },
-        { k: "Sheet", ios: "Detent, 280ms", android: "Bottom sheet, 250ms" },
-        { k: "Feedback", ios: "Haptic light", android: "Haptic + ripple" },
+        { k: "Tap", v: "Light haptic" },
+        { k: "Saved", v: "Success haptic · number updates in place" },
+        { k: "Under 14 days", v: "Warning haptic, once per crossing" },
+        { k: "Undo", v: "Inline revert · never a dialog" },
       ].map((row, i) => (
         <g key={row.k}>
           <T x={428} y={624 + i * 26} size={11.5} fill={SOFT}>
             {row.k}
           </T>
           <T x={720} y={624 + i * 26} size={11.5} weight={500}>
-            {row.ios}
-          </T>
-          <T x={920} y={624 + i * 26} size={11.5} weight={500}>
-            {row.android}
+            {row.v}
           </T>
         </g>
       ))}
-      <Label x={720} y={604}>
-        iOS
-      </Label>
-      <Label x={920} y={604}>
-        Android
-      </Label>
     </Frame>
   );
 }

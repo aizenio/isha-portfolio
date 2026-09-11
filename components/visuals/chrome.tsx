@@ -360,39 +360,3 @@ export function PhoneIOS({
     </g>
   );
 }
-
-/** An Android device. Same content, Material chrome and navigation. */
-export function PhoneAndroid({
-  x,
-  y,
-  w,
-  h,
-  children,
-}: {
-  x: number;
-  y: number;
-  w: number;
-  h: number;
-  children: ReactNode;
-}) {
-  const r = q(w * 0.075);
-  return (
-    <g>
-      <rect x={x} y={y} width={w} height={h} rx={r} fill={RAISED} stroke={RULE} strokeWidth="1.5" />
-      <T x={x + 18} y={y + 18} size={10.5} weight={600}>
-        {IOS_TIME}
-      </T>
-      <circle cx={q(x + w / 2)} cy={y + 18} r="5" fill={INK} opacity="0.85" />
-      <g transform={`translate(${x + w - 58} ${y + 12})`}>
-        <path d="M0 11 L7 0 L14 11 z" fill={INK} opacity="0.75" />
-        <path d="M20 2 a7 7 0 0 1 10 0" fill="none" stroke={INK} strokeWidth="1.6" opacity="0.75" />
-        <rect x="35" y="1.5" width="9" height="9" rx="2" fill={INK} opacity="0.75" />
-      </g>
-      <svg x={x + 1} y={y + 32} width={w - 2} height={h - 58} viewBox={`0 0 ${w - 2} ${h - 58}`}>
-        {children}
-      </svg>
-      {/* gesture / nav bar */}
-      <rect x={q(x + w / 2 - 46)} y={y + h - 14} width="92" height="4" rx="2" fill={INK} opacity="0.45" />
-    </g>
-  );
-}

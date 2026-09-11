@@ -27,8 +27,6 @@ export type VisualKey =
   | "app-deck-loop"
   | "app-deck-plan"
   | "app-cover"
-  | "app-android"
-  | "app-parity"
   | "app-research"
   | "app-system"
   | "archive-a"
@@ -787,14 +785,14 @@ export const projects: Project[] = [
     slug: "monsoon",
     index: "03",
     name: "Monsoon",
-    discipline: "Mobile UI · iOS & Android",
+    discipline: "Mobile UI · iOS",
     tagline:
-      "A money app for people whose income arrives in seasons, drawn twice — once for each platform.",
+      "A money app for people whose income arrives in seasons, built down to the last screen.",
     year: "2024",
     role: "Product Designer",
-    product: "Cash-flow app — iOS and Android",
-    scope: ["Diary study", "iOS & Android UI", "Interaction design", "Mobile design system"],
-    outcome: "Day-30 retention 19% → 47%. Rated 4.8 across both stores.",
+    product: "Cash-flow app — iOS",
+    scope: ["Diary study", "iOS UI", "Interaction design", "Mobile design system"],
+    outcome: "Day-30 retention 19% → 47%. Rated 4.8 on the App Store.",
     visual: "app-ios",
     cover: "app-cover",
     link: {
@@ -901,27 +899,12 @@ export const projects: Project[] = [
       },
       {
         kind: "chapter",
-        label: "The Platforms",
-        heading: "Drawn twice, on purpose.",
+        label: "The Build",
+        heading: "Reviewed on a device, not in a deck.",
         body: [
-          "The deliverable was the interface for both platforms, not one design exported to two stores. Content, copy and order are identical; the grammar is not. iOS gets a large title that collapses, four labelled tabs and a filled button where the thumb already rests. Android gets a fixed top app bar, three destinations with an active indicator, and a floating action button in the corner its users check first.",
-          "The iOS side was built as a SwiftUI UI target and reviewed on a device — every screen above is a capture from it, not a rendering. The Android side ships as the parity sheet below, which is what the second team builds against.",
-          "Where a platform has an opinion, the platform wins — undo is an inline revert on iOS and a snackbar on Android, because that is what each set of users will look for without being taught.",
+          "The screens above are captures from a SwiftUI target running on an iPhone, not renderings of one. A number set at 64pt behaves differently in a frame than it does at arm's length, and a keypad you cannot reach is only obvious once your thumb is on it.",
+          "Everything the build shows comes from the same nine colour tokens, eight type styles and six components — so a screen that exists only on the canvas still costs nothing to ship.",
         ],
-      },
-      {
-        kind: "visual",
-        visual: "app-android",
-        caption:
-          "The Android build as specified. Same three screens, Material 3 chrome: top app bar, floating action button, navigation bar with an active pill.",
-        scale: "wide",
-      },
-      {
-        kind: "visual",
-        visual: "app-parity",
-        caption:
-          "The parity sheet handed to both engineering teams. Every divergence is listed, with the reason it exists.",
-        scale: "wide",
       },
       {
         kind: "chapter",
@@ -976,7 +959,7 @@ export const projects: Project[] = [
         kind: "visual",
         visual: "app-system",
         caption:
-          "The mobile system. Reach zones measured on a 6.1-inch device, targets tested to the size that fails, type to 200%, and one component mapped to two platforms.",
+          "The mobile system. Reach zones measured on a 6.1-inch device, targets tested down to the size that fails, type at 100% and at 200%, and the three feedback patterns.",
         scale: "wide",
       },
       {
@@ -1018,13 +1001,13 @@ export const projects: Project[] = [
             ],
           },
           {
-            title: "Platform",
-            note: "Divergence, listed",
+            title: "Feedback",
+            note: "Three patterns, no more",
             items: [
-              { name: "Primary action", value: "iOS button · Android FAB" },
-              { name: "Undo", value: "Inline revert · snackbar" },
-              { name: "Navigation", value: "4 tabs · 3 destinations" },
-              { name: "Motion", value: "280ms detent · 250ms sheet" },
+              { name: "Tap", value: "Light haptic" },
+              { name: "Saved", value: "Success haptic, in-place update" },
+              { name: "Under 14 days", value: "Warning haptic, once" },
+              { name: "Undo", value: "Inline revert, never a dialog" },
             ],
           },
         ],
@@ -1034,7 +1017,7 @@ export const projects: Project[] = [
         items: [
           { value: "47%", label: "Day-30 retention", note: "From 19% before the rebuild" },
           { value: "3", label: "Taps to log income", note: "Down from nine" },
-          { value: "4.8", label: "Store rating", note: "iOS and Android, 12k reviews" },
+          { value: "4.8", label: "App Store rating", note: "12k reviews" },
           { value: "100%", label: "Screens at 200% type", note: "No truncation, no horizontal scroll" },
         ],
       },

@@ -181,9 +181,8 @@ without labelling it.
   Agent Swarm is the multi-agent supply chain platform in
   `experiments/agent_swarm` (same five agents, same four headline metrics, same
   read-only GOD panel). Monsoon's iOS screens are captures of the SwiftUI UI
-  build in `experiments/monsoon-ios`; its Android screens are drawn from the
-  parity spec, because there is no Android toolchain on this machine. The six
-  archive entries are still placeholders.
+  build in `experiments/monsoon-ios`. The six archive entries are still
+  placeholders.
 - **Portrait** — `components/visuals/Portrait.tsx` draws a halftone plate. To
   use a photograph, drop it at `public/portrait.jpg` and swap the `<svg>` for a
   `next/image` fill inside the same wrapper; frame, ratio and motion still apply.

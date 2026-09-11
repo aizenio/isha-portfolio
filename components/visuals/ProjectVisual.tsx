@@ -209,14 +209,6 @@ const SCENES: Record<VisualKey, Scene> = {
       caption: "Plan, at night",
     },
   ]),
-  "app-android": plainShot(
-    "/shots/monsoon/android.webp",
-    "The Android build: Material 3 top app bar, floating action button, and a navigation bar with an active pill.",
-  ),
-  "app-parity": plainShot(
-    "/shots/monsoon/parity.webp",
-    "The same screen on both platforms, beside the list of every deliberate divergence.",
-  ),
   "app-deck-firstrun": plainShot(
     "/shots/monsoon/deck/firstrun.webp",
     "First run, three screens: welcome, what's in hand, what goes out.",
