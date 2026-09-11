@@ -20,16 +20,16 @@ import {
  * the deck's cover — is the exception: it fills the frame exactly, and any
  * overscan would eat the edges it was cropped to. Those sit still.
  */
-export function Plate({ visual }: { visual: VisualKey }) {
+export function Plate({ visual, priority }: { visual: VisualKey; priority?: boolean }) {
   if (visualFrame(visual) === "plain") {
-    return <ProjectVisual visual={visual} />;
+    return <ProjectVisual visual={visual} priority={priority} />;
   }
 
   if (visualKind(visual) === "shot") {
     return (
       <div className="h-full w-full overflow-hidden">
         <Parallax distance={56} className="-mt-7 h-[calc(100%+3.5rem)] w-full">
-          <ProjectVisual visual={visual} />
+          <ProjectVisual visual={visual} priority={priority} />
         </Parallax>
       </div>
     );

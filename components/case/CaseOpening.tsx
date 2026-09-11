@@ -86,7 +86,7 @@ export function CaseOpening({ project }: { project: Project }) {
         <div
           className={`${plateBox(project.visual)} w-full overflow-hidden border-y border-rule`}
         >
-          <Plate visual={project.visual} />
+          <Plate visual={project.visual} priority />
         </div>
         <div className="shell">
           <figcaption className="t-label mt-5 max-w-[52ch] leading-[1.8]">

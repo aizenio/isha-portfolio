@@ -4,7 +4,7 @@ import { ACCENT, type Fit, Frame, INK, RAISED } from "./chrome";
 import { q, seeded } from "./scene-utils";
 import { AtlasAudit, AtlasSystem } from "./scenes/atlas";
 import { SwarmConsole, SwarmGraph, SwarmInsights, SwarmResearch, SwarmSystem } from "./scenes/swarm";
-import { MonsoonAndroid, MonsoonParity, MonsoonResearch, MonsoonSystem } from "./scenes/monsoon";
+import { MonsoonResearch, MonsoonSystem } from "./scenes/monsoon";
 
 /**
  * Every image on this site is drawn, not photographed.
@@ -142,27 +142,27 @@ const phoneShot = (
 
 const SCENES: Record<VisualKey, Scene> = {
   "atlas-shot-hero": browserShot(
-    "/shots/zane-atlas/hero.png",
+    "/shots/zane-atlas/hero.webp",
     "The Zane Atlas homepage: Engineered systems for scalable growth, with the system diagram beside it.",
     "zaneatlas.com",
   ),
   "atlas-shot-services": browserShot(
-    "/shots/zane-atlas/services.png",
+    "/shots/zane-atlas/services.webp",
     "The services section: four cards — websites, AI and automation, custom software, engineering productivity.",
     "zaneatlas.com/#services",
   ),
   "atlas-shot-demos": browserShot(
-    "/shots/zane-atlas/demos.png",
+    "/shots/zane-atlas/demos.webp",
     "The demos section, where each service is shown working rather than described.",
     "zaneatlas.com/#demos",
   ),
   "atlas-shot-process": browserShot(
-    "/shots/zane-atlas/process.png",
+    "/shots/zane-atlas/process.webp",
     "The process section: the engagement laid out step by step.",
     "zaneatlas.com/#process",
   ),
   "atlas-shot-pricing": browserShot(
-    "/shots/zane-atlas/pricing.png",
+    "/shots/zane-atlas/pricing.webp",
     "The pricing section: three packages, each quoted per project against a fixed scope.",
     "zaneatlas.com/#pricing",
   ),
@@ -177,56 +177,62 @@ const SCENES: Record<VisualKey, Scene> = {
 
   "app-ios": phoneShot([
     {
-      src: "/shots/monsoon/runway-light.png",
+      src: "/shots/monsoon/runway-light.webp",
       alt: "Monsoon home screen on iPhone: you are safe for 38 days, until 11 April.",
       caption: "Runway",
     },
     {
-      src: "/shots/monsoon/log-light.png",
+      src: "/shots/monsoon/log-light.webp",
       alt: "Logging a payment: amount, payer, date, and a keypad inside the thumb arc.",
       caption: "Log a payment",
     },
     {
-      src: "/shots/monsoon/plan-light.png",
+      src: "/shots/monsoon/plan-light.webp",
       alt: "The plan screen after the payment lands: 59 days, up 21.",
       caption: "After it lands",
     },
   ]),
   "app-night": phoneShot([
     {
-      src: "/shots/monsoon/runway-dark.png",
+      src: "/shots/monsoon/runway-dark.webp",
       alt: "The home screen in the night theme.",
       caption: "Night",
     },
     {
-      src: "/shots/monsoon/tight-light.png",
+      src: "/shots/monsoon/tight-light.webp",
       alt: "The same screen with nine days of runway left: the number turns amber, nothing else changes.",
       caption: "Nine days left",
     },
     {
-      src: "/shots/monsoon/plan-dark.png",
+      src: "/shots/monsoon/plan-dark.webp",
       alt: "The plan screen in the night theme.",
       caption: "Plan, at night",
     },
   ]),
+  "app-android": plainShot(
+    "/shots/monsoon/android.webp",
+    "The Android build: Material 3 top app bar, floating action button, and a navigation bar with an active pill.",
+  ),
+  "app-parity": plainShot(
+    "/shots/monsoon/parity.webp",
+    "The same screen on both platforms, beside the list of every deliberate divergence.",
+  ),
   "app-deck-firstrun": plainShot(
-    "/shots/monsoon/deck/firstrun.png",
+    "/shots/monsoon/deck/firstrun.webp",
     "First run, three screens: welcome, what's in hand, what goes out.",
   ),
   "app-deck-loop": plainShot(
-    "/shots/monsoon/deck/loop.png",
+    "/shots/monsoon/deck/loop.webp",
     "The daily loop: runway healthy, runway tight at nine days, and logging a payment.",
   ),
   "app-deck-plan": plainShot(
-    "/shots/monsoon/deck/plan.png",
+    "/shots/monsoon/deck/plan.webp",
     "Plan: the month, moving a bill with a live delta, and the year read as seasons.",
   ),
   "app-cover": plainShot(
-    "/shots/monsoon/cover.png",
+    "/shots/monsoon/cover.webp",
     "Three Monsoon screens on iPhone: the runway, logging a payment, and the month after it lands.",
   ),
-  "app-android": mock(MonsoonAndroid),
-  "app-parity": mock(MonsoonParity),
   "app-research": mock(MonsoonResearch),
   "app-system": mock(MonsoonSystem),
 
@@ -253,18 +259,27 @@ export const visualFit = (visual: VisualKey): Fit => {
   return scene.kind === "shot" ? "contain" : scene.fit;
 };
 
-export function ProjectVisual({ visual, className }: { visual: VisualKey; className?: string }) {
+export function ProjectVisual({
+  visual,
+  className,
+  priority,
+}: {
+  visual: VisualKey;
+  className?: string;
+  /** Set on the plate that opens a page, so it is not lazy-loaded. */
+  priority?: boolean;
+}) {
   const scene = SCENES[visual];
 
   if (scene.kind === "shot") {
     return (
       <div className={`h-full w-full ${className ?? ""}`}>
         {scene.frame === "browser" ? (
-          <BrowserShot {...scene.shots[0]} url={scene.url ?? ""} />
+          <BrowserShot {...scene.shots[0]} url={scene.url ?? ""} priority={priority} />
         ) : scene.frame === "phone" ? (
-          <PhoneShot shots={scene.shots} />
+          <PhoneShot shots={scene.shots} priority={priority} />
         ) : (
-          <PlainShot {...scene.shots[0]} />
+          <PlainShot {...scene.shots[0]} priority={priority} />
         )}
       </div>
     );

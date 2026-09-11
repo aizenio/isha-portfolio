@@ -44,7 +44,7 @@ export function BrowserShot({ src, alt, width, height, url, priority }: Common &
           width={width}
           height={height}
           priority={priority}
-          quality={95}
+          quality={82}
           className="block h-auto w-full"
           sizes="(min-width: 1280px) 1180px, 96vw"
         />
@@ -73,7 +73,7 @@ export function PhoneShot({
                 width={shot.width}
                 height={shot.height}
                 priority={priority && index === 0}
-                quality={95}
+                quality={82}
                 className="block h-full w-full object-contain"
                 sizes="(min-width: 768px) 300px, 30vw"
               />
@@ -95,7 +95,7 @@ export function PlainShot({ src, alt, width, height, priority }: Common) {
       width={width}
       height={height}
       priority={priority}
-      quality={95}
+      quality={82}
       className="h-full w-full object-cover"
       sizes="(min-width: 1280px) 1180px, 96vw"
     />
