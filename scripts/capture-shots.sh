@@ -4,6 +4,11 @@
 #
 #   ./scripts/capture-shots.sh site      the live Zane Atlas site, in Chrome
 #   ./scripts/capture-shots.sh app       the Monsoon UI build, in the simulator
+#   ./scripts/capture-shots.sh covers    deck covers, from /plate/[visual]
+#
+# Covers exist because the deck's WebGL conveyor builds each card's texture
+# from an <svg> or an <img> and cannot read a plate that is markup. Run the dev
+# server first; the harness route renders one plate, full bleed, no chrome.
 #
 # Both write straight into public/shots/. Nothing here is a mockup: if the site
 # or the app changes, run this and the case study is current again.
@@ -61,8 +66,22 @@ capture_app() {
   echo "captured $out — rebuild the deck cover with scripts/cover.html if the screens changed"
 }
 
+capture_covers() {
+  local port=${PORT:-3000}
+  local out=public/shots
+  # reduced motion skips the opening curtain, which would otherwise be the shot
+  for plate in swarm-console; do
+    "$CHROME" --headless=new --disable-gpu --hide-scrollbars --force-prefers-reduced-motion \
+      --force-device-scale-factor=1.5 --window-size=1440,900 --virtual-time-budget=14000 \
+      --screenshot="$TMP/$plate.png" "http://localhost:$port/plate/$plate"
+    cwebp -q 88 -quiet "$TMP/$plate.png" -o "$out/agent-swarm-cover.webp"
+  done
+  echo "captured $out"
+}
+
 case "${1:-}" in
   site) capture_site ;;
   app) capture_app ;;
-  *) echo "usage: $0 site|app" && exit 1 ;;
+  covers) capture_covers ;;
+  *) echo "usage: $0 site|app|covers" && exit 1 ;;
 esac

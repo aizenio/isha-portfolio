@@ -2,9 +2,15 @@ import type { VisualKey } from "@/lib/content";
 import { BrowserShot, PhoneShot, PlainShot } from "./ShotFrame";
 import { ACCENT, type Fit, Frame, INK, RAISED } from "./chrome";
 import { q, seeded } from "./scene-utils";
-import { AtlasAudit, AtlasSystem } from "./scenes/atlas";
-import { SwarmConsole, SwarmGraph, SwarmInsights, SwarmResearch, SwarmSystem } from "./scenes/swarm";
-import { MonsoonResearch, MonsoonSystem } from "./scenes/monsoon";
+import { AtlasSystemBoard, AuditBoard } from "./live/atlas";
+import { ResearchBoard, SystemBoard } from "./live/monsoon";
+import {
+  ConsoleBoard,
+  GraphBoard,
+  InsightsBoard,
+  SwarmResearchBoard,
+  SwarmSystemBoard,
+} from "./live/swarm";
 import {
   BoardFirstRun,
   BoardIOS,
@@ -124,7 +130,6 @@ type Scene =
       url?: string;
     };
 
-const mock = (render: () => React.JSX.Element): Scene => ({ kind: "svg", render, fit: "contain" });
 const mark = (render: () => React.JSX.Element): Scene => ({ kind: "svg", render, fit: "slice" });
 const live = (render: () => React.JSX.Element): Scene => ({ kind: "live", render });
 
@@ -168,26 +173,30 @@ const SCENES: Record<VisualKey, Scene> = {
     "The pricing section: three packages, each quoted per project against a fixed scope.",
     "zaneatlas.com/#pricing",
   ),
-  "atlas-audit": mock(AtlasAudit),
-  "atlas-system": mock(AtlasSystem),
+  "atlas-audit": live(AuditBoard),
+  "atlas-system": live(AtlasSystemBoard),
 
-  "swarm-console": mock(SwarmConsole),
-  "swarm-insights": mock(SwarmInsights),
-  "swarm-graph": mock(SwarmGraph),
-  "swarm-research": mock(SwarmResearch),
-  "swarm-system": mock(SwarmSystem),
+  "swarm-console": live(ConsoleBoard),
+  "swarm-insights": live(InsightsBoard),
+  "swarm-graph": live(GraphBoard),
+  "swarm-research": live(SwarmResearchBoard),
+  "swarm-system": live(SwarmSystemBoard),
 
   "app-ios": live(BoardIOS),
   "app-night": live(BoardNight),
   "app-deck-firstrun": live(BoardFirstRun),
   "app-deck-loop": live(BoardLoop),
   "app-deck-plan": live(BoardPlan),
+  "swarm-cover": plainShot(
+    "/shots/agent-swarm-cover.webp",
+    "The Agent Swarm console: four headline metrics, the network, the risk list and the GOD agent rail.",
+  ),
   "app-cover": plainShot(
     "/shots/monsoon/cover.webp",
     "Three Monsoon screens on iPhone: the runway, logging a payment, and the month after it lands.",
   ),
-  "app-research": mock(MonsoonResearch),
-  "app-system": mock(MonsoonSystem),
+  "app-research": live(ResearchBoard),
+  "app-system": live(SystemBoard),
 
   "archive-a": mark(() => <ArchiveScene seed={101} variant={0} />),
   "archive-b": mark(() => <ArchiveScene seed={202} variant={1} />),
@@ -196,6 +205,9 @@ const SCENES: Record<VisualKey, Scene> = {
   "archive-e": mark(() => <ArchiveScene seed={505} variant={4} />),
   "archive-f": mark(() => <ArchiveScene seed={606} variant={5} />),
 };
+
+/** Every plate this site can render, for the capture harness at /plate/[visual]. */
+export const VISUAL_KEYS = Object.keys(SCENES) as VisualKey[];
 
 /** Whether a plate is drawn artwork or a captured screenshot. */
 export const visualKind = (visual: VisualKey) => SCENES[visual].kind;

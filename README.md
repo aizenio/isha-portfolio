@@ -22,7 +22,9 @@ npm run dev
 | `lib/deck.ts` | The deck: featured projects (which carry case studies) followed by archive work (which says so rather than offering a dead click). |
 | `components/sections/` | One file per chapter of the home page. `app/page.tsx` lists them in order. |
 | `public/shots/` | Real captures of the live Zane Atlas site, taken with headless Chrome — re-take them with `scripts/capture-shots.sh site`. |
-| `components/visuals/monsoon/` | The Monsoon screens, built as markup rather than captured. `kit.tsx` is the device and the app's palette, `screens.tsx` the eight screens, `boards.tsx` the rows that become plates. |
+| `components/visuals/monsoon/` | The Monsoon screens, built as markup. `kit.tsx` is the device and the app's palette, `screens.tsx` the eight screens, `boards.tsx` the rows that become plates. |
+| `components/visuals/live/` | Every other built plate: `kit.tsx` is the shared board furniture, then one file per project. |
+| `app/plate/[visual]/` | A capture harness — one plate, full bleed, no chrome. Deck covers are photographed from here. |
 | `components/visuals/` | The plates. `chrome.tsx` is the drawing kit (type, panels, browser and device frames); `scenes/` holds one file per project. A plate declares `contain` (a mockup, shown whole) or `slice` (a texture, cropped to fill). |
 | `components/case/` | The case-study renderer. A case study is a sequence of *movements* (`chapter`, `statement`, `visual`, `pair`, `sequence`, `research`, `system`, `metrics`) declared in `lib/content.ts`. |
 | `components/visuals/` | Every image on the site, drawn as inline SVG. |
@@ -202,10 +204,17 @@ says which:
   parallax, because scaling a screenshot to fake depth crops its edges. The
   captures are served `unoptimized`: they are already WebP at 2160px and under
   130KB, and the image optimizer only ever returned a smaller, softer variant.
-- **Built** (`live`) — markup. The Monsoon screens are components, not
-  pictures, so they stay sharp at any plate size and weigh nothing. Sizing uses
+- **Built** (`live`) — markup, and now every plate except the Zane Atlas
+  captures and the six archive marks. A built plate stays sharp at any size,
+  weighs nothing, and its text can be selected and read aloud. Sizing uses
   container-query units against a fixed design width (`u(24)` means "24px at
-  design size"), which scales a whole board as one drawing.
+  design size"), which scales a whole board as one drawing with its type locked
+  to the layout.
+
+The deck's conveyor builds each card's texture from an `<svg>` or an `<img>`
+and cannot read markup, so a project whose opening plate is built supplies a
+`cover` — photographed from `/plate/[visual]` with
+`scripts/capture-shots.sh covers`.
 
 The deck's WebGL conveyor builds one texture per card and can read either kind —
 an `<svg>` when the card is drawn, the loaded `<img>` when it is not. A card

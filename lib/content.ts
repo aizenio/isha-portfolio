@@ -21,6 +21,7 @@ export type VisualKey =
   | "swarm-graph"
   | "swarm-research"
   | "swarm-system"
+  | "swarm-cover"
   | "app-ios"
   | "app-night"
   | "app-deck-firstrun"
@@ -555,6 +556,7 @@ export const projects: Project[] = [
     scope: ["Field research", "Information architecture", "Interface design", "Design system"],
     outcome: "Time-to-decision down 41%. Sixty-two elements on the default view became six.",
     visual: "swarm-console",
+    cover: "swarm-cover",
     premise:
       "Five agents reading a supply chain in real time, a thousand messages an hour on the bus, and an operator who has to decide whether to believe any of it.",
     movements: [

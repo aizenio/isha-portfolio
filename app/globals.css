@@ -361,6 +361,18 @@ html.lenis body {
 }
 
 /* --------------------------------------------------------------------------
+   Capture harness
+   /plate/[visual] renders one plate and nothing else, so the covers taken from
+   it carry no nav, no grain and no cursor.
+   -------------------------------------------------------------------------- */
+
+body:has(.plate-capture) header,
+body:has(.plate-capture) .grain,
+body:has(.plate-capture) [data-cursor] {
+  display: none !important;
+}
+
+/* --------------------------------------------------------------------------
    Intro
    The page is held still behind the opening panel so the reader can't scroll
    into a hero that hasn't begun animating yet.
