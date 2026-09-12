@@ -3,6 +3,7 @@
 import { AnimatePresence, motion, useReducedMotion } from "motion/react";
 import {
   createContext,
+  useCallback,
   useContext,
   useEffect,
   useState,
@@ -31,9 +32,16 @@ export const useIntroReady = () => useContext(IntroContext);
 
 const SESSION_KEY = "isha:intro-played";
 /** Long enough to read the name; short enough not to be a toll gate. */
-const MIN_MS = 1500;
-/** Never trap the reader behind a texture that will not arrive. */
-const MAX_MS = 5000;
+const MIN_MS = 1400;
+/**
+ * Never trap the reader behind a texture that will not arrive.
+ *
+ * This used to be five seconds, which was five seconds of dark screen whenever
+ * the deck's textures were slow — a cold load on a real connection, in other
+ * words. The panel is an introduction, not a loading screen: past this it
+ * clears whether or not the work behind it has landed.
+ */
+const MAX_MS = 2000;
 
 /**
  * Decided once per page load, at module scope.
@@ -68,7 +76,11 @@ export function IntroProvider({ children }: { children: ReactNode }) {
     if (phase !== "playing") document.documentElement.classList.remove("intro-locked");
   }, [phase]);
 
-  const finish = () => {
+  /*
+   * Stable across renders: the curtain's counter loop keys off this, and a new
+   * identity on every render restarted the count from zero.
+   */
+  const finish = useCallback(() => {
     alreadyPlayed = true;
     try {
       sessionStorage.setItem(SESSION_KEY, "1");
@@ -76,7 +88,7 @@ export function IntroProvider({ children }: { children: ReactNode }) {
       /* private mode — the intro simply plays again next load */
     }
     setPhase("done");
-  };
+  }, []);
 
   return (
     <IntroContext.Provider value={phase === "done"}>
@@ -107,7 +119,7 @@ function IntroCurtain({ onFinish }: { onFinish: () => void }) {
      * backgrounded tab pauses outright — without this the page stays locked
      * behind the panel until the reader comes back and frames resume.
      */
-    const hardStop = window.setTimeout(onFinish, MAX_MS + 1200);
+    const hardStop = window.setTimeout(onFinish, MAX_MS + 600);
     return () => {
       cancelled = true;
       window.clearTimeout(bail);

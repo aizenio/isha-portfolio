@@ -1,7 +1,7 @@
 "use client";
 
 import { motion, useReducedMotion } from "motion/react";
-import { Fragment } from "react";
+import { Fragment, useEffect, useState } from "react";
 import { inView, wordRise, wordStagger } from "@/lib/motion";
 
 type RevealTextProps = {
@@ -38,6 +38,19 @@ export function RevealText({
 }: RevealTextProps) {
   const reduced = useReducedMotion();
   const Heading = as;
+
+  /*
+   * A held reveal must never be a permanent one. `play` is the intro's gate,
+   * and if that gate fails to open — a stalled texture, a thrown effect — the
+   * words would sit at zero opacity forever. This releases them anyway.
+   */
+  const [released, setReleased] = useState(false);
+  useEffect(() => {
+    if (!onMount || play) return;
+    const id = window.setTimeout(() => setReleased(true), 2600);
+    return () => window.clearTimeout(id);
+  }, [onMount, play]);
+  const revealed = play || released;
   const label = lines.join(" ");
   // Normalise both sides so "simple." in the copy matches "simple" in the list.
   const normalise = (word: string) =>
@@ -66,7 +79,7 @@ export function RevealText({
 
   const MotionHeading = motion[as];
   const trigger = onMount
-    ? ({ animate: play ? "play" : "rest" } as const)
+    ? ({ animate: revealed ? "play" : "rest" } as const)
     : ({ whileInView: "play", viewport: inView } as const);
 
   return (

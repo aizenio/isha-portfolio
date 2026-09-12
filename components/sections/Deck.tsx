@@ -55,6 +55,19 @@ export function Deck() {
   const enabled = useEnhancedVisuals();
   const reduced = useReducedMotion();
   const introReady = useIntroReady();
+  /*
+   * The hero's copy animates in when the intro clears. If that gate never
+   * opens the copy would stay invisible, so it releases itself shortly after
+   * mount either way — a hero that is late is recoverable, a hero that never
+   * arrives is not.
+   */
+  const [heroReleased, setHeroReleased] = useState(false);
+  useEffect(() => {
+    if (introReady) return;
+    const id = window.setTimeout(() => setHeroReleased(true), 2600);
+    return () => window.clearTimeout(id);
+  }, [introReady]);
+  const heroReady = introReady || heroReleased;
   const [live, setLive] = useState(false);
   const [active, setActive] = useState(true);
   const [index, setIndex] = useState(0);
@@ -196,7 +209,7 @@ export function Deck() {
             <RevealText
               as="h1"
               onMount
-              play={introReady}
+              play={heroReady}
               delay={0.15}
               className="font-display t-hero mt-10 max-w-[15ch] text-ink"
               lines={["I design digital", "experiences that make", "complex things", "feel simple."]}
@@ -276,7 +289,7 @@ export function Deck() {
                 <RevealText
                   as="h1"
                   onMount
-                  play={introReady}
+                  play={heroReady}
                   delay={0.15}
                   className="font-display t-hero mt-10 max-w-[15ch] text-ink"
                   lines={["I design digital", "experiences that make", "complex things", "feel simple."]}
@@ -284,7 +297,7 @@ export function Deck() {
                 />
                 <motion.p
                   initial={reduced ? false : { opacity: 0, y: 14 }}
-                  animate={introReady ? { opacity: 1, y: 0 } : undefined}
+                  animate={heroReady ? { opacity: 1, y: 0 } : undefined}
                   transition={{ duration: duration.scene, delay: 0.85, ease: easeEditorial }}
                   className="t-lede mt-10 max-w-[36ch]"
                 >
@@ -292,7 +305,7 @@ export function Deck() {
                 </motion.p>
                 <motion.div
                   initial={reduced ? false : { opacity: 0 }}
-                  animate={introReady ? { opacity: 1 } : undefined}
+                  animate={heroReady ? { opacity: 1 } : undefined}
                   transition={{ duration: duration.slow, delay: 1.1 }}
                   className="mt-14 flex items-center gap-3"
                 >
